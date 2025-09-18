@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//// --- NextAuth models ---
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  trustScore    Int       @default(0)
+
+  accounts  Account[]
+  sessions  Session[]
+  listings  SwapListing[]
+  groups    GroupMember[]
+  StudyPost StudyPost[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+//// --- App models (Week 1 scope) ---
+model Course {
+  id         String       @id @default(cuid())
+  code       String       @unique // e.g., CSCI-201
+  title      String
+  dept       String
+  sections   Section[]
+  StudyPost  StudyPost[]
+  StudyGroup StudyGroup[]
+}
+
+model Section {
+  id         String  @id @default(cuid())
+  courseId   String
+  course     Course  @relation(fields: [courseId], references: [id])
+  number     String // 5-digit class number
+  days       String // e.g., MW
+  start      String // "14:00"
+  end        String // "15:50"
+  instructor String?
+  capacity   Int?
+
+  // back-relation for SwapListing.haveSection (this fixes your P1012)
+  haveListings SwapListing[] @relation("HaveSection")
+}
+
+model StudyPost {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  courseId      String
+  course        Course   @relation(fields: [courseId], references: [id])
+  preferredDays String[] // ["Mon","Wed"]
+  timeBlocks    Int[] // 0..335 half-hour slots
+  goals         String[] // ["hw","exam prep"]
+  modality      String // in-person | online | either
+  skillLevel    Int
+  status        String   @default("OPEN")
+  createdAt     DateTime @default(now())
+}
+
+model StudyGroup {
+  id        String        @id @default(cuid())
+  courseId  String
+  course    Course        @relation(fields: [courseId], references: [id])
+  sectionId String?
+  sizeCap   Int           @default(6)
+  modality  String
+  cadence   String
+  tags      String[]
+  members   GroupMember[]
+}
+
+model GroupMember {
+  id      String     @id @default(cuid())
+  groupId String
+  group   StudyGroup @relation(fields: [groupId], references: [id])
+  userId  String
+  user    User       @relation(fields: [userId], references: [id])
+  role    String     @default("member")
+}
+
+model SwapListing {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  haveSectionId String
+  haveSection   Section @relation("HaveSection", fields: [haveSectionId], references: [id])
+
+  wantSectionIds String[]
+  timePrefs      Json?
+  status         String   @default("OPEN") // OPEN, MATCHED, CLOSED
+  createdAt      DateTime @default(now())
+}
