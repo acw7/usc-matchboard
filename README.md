@@ -1,4 +1,4 @@
-# USC Section-Swap & Study-Group Matchboard
+# USC Study-Group Match Board
 
 Help USC students swap course sections and auto-form study groups, safely and fast.
 
@@ -42,3 +42,13 @@ pnpm exec tsx scripts/seed-courses.ts
 
 # 6) run
 pnpm dev
+
+Useful URLs
+
+App: http://localhost:3000
+
+Login: http://localhost:3000/login
+
+Session JSON: http://localhost:3000/api/auth/session
+
+MailHog (dev emails): http://localhost:8025
