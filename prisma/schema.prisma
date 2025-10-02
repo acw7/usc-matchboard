@@ -73,7 +73,7 @@ model Section {
   id         String  @id @default(cuid())
   courseId   String
   course     Course  @relation(fields: [courseId], references: [id])
-  number     String // 5-digit class number
+  number     String  @unique // 5-digit class number
   days       String // e.g., MW
   start      String // "14:00"
   end        String // "15:50"

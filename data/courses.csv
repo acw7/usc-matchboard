@@ -1,0 +1,6 @@
+code,title,dept,section_number,days,start,end,instructor
+
+CSCI-201,Principles of Software Development,CSCI,30001,MW,14:00,15:50,Staff
+CSCI-201,Principles of Software Development,CSCI,30002,TTh,10:00,11:50,Staff
+CSCI-270,Introduction to Algorithms and Theory of Computing,CSCI,31001,MW,12:00,13:20,Staff
+CSCI-356,Introduction to Computer Systems,CSCI,32001,TTh,14:00,15:20,Staff
