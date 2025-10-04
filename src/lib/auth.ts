@@ -38,6 +38,12 @@ export const authOptions: NextAuthOptions = {
       if (session.user) (session.user as any).id = user.id;
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
+      // default post-login landing
+      return `${baseUrl}/courses`;
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV !== "production",
